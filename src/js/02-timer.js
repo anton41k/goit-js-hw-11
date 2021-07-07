@@ -1,12 +1,11 @@
 // ES6 Modules or TypeScript
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 
 class CountdownTimer{
-    constructor({selector, targetDate}) {
+    constructor({selector}) {
         this.intervalID = null;
-        this.selector = selector
-        this.targetDate = targetDate;
+        this.selector = selector;
         this.ref = {
             dayValue: document.querySelector(`${this.selector} span[data-days]`),
             hoursValue: document.querySelector(`${this.selector} span[data-hours]`),
@@ -15,29 +14,41 @@ class CountdownTimer{
             input: document.querySelector('#date-selector'),
             startBtn:document.querySelector('button[data-start]')
         };
-        this.textInput()
+        this.targetDate = null;
+        this.onEvent();
     }
 
-    textInput(ev) {
-        this.ref.input.addEventListener('input', this.dataEntryProcessing.bind(this))        
+    onEvent(ev) {
+        this.ref.startBtn.disabled = 1;
+        this.ref.input.addEventListener('input', this.onDataEntryProcessing.bind(this));
+        this.ref.startBtn.addEventListener('click', this.start.bind(this))
     }
 
-    dataEntryProcessing(ev) {
+    onDataEntryProcessing(ev) {
+        this.stop();
+        const dateNow = this.onDateNow();
         const inputValue = ev.currentTarget;
-        console.log(this.targetDate)
-        console.log(inputValue.valueAsNumber - this.targetDate)
-        if (inputValue.valueAsNumber - this.targetDate <= 0) {
+        this.targetDate = inputValue.valueAsNumber;console.log(this.targetDate - dateNow)
+        if (this.targetDate - dateNow < 0) {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: '"Please choose a date in the future"'
             })
         }
+        else {
+            this.ref.startBtn.disabled = 0;
+        }
+    }
+
+    onDateNow() {
+        return new Date().getTime();
     }
 
     start() {
+        this.ref.startBtn.disabled = 1;
         this.intervalID = setInterval( () => {
-            const nowTimer = new Date().getTime();
+            const nowTimer = this.onDateNow();
             const deltaTimer = this.targetDate - nowTimer;
             this.onSetTimer(deltaTimer);
             if (deltaTimer < 0) {
@@ -69,13 +80,13 @@ class CountdownTimer{
         const day = hour * 24;
 
         // Remaining days
-        const days = Math.floor(ms / day);
+        const days = this.onPad(Math.floor(ms / day));
         // Remaining hours
-        const hours = Math.floor((ms % day) / hour);
+        const hours = this.onPad(Math.floor((ms % day) / hour));
         // Remaining minutes
-        const minutes = Math.floor(((ms % day) % hour) / minute);
+        const minutes = this.onPad(Math.floor(((ms % day) % hour) / minute));
         // Remaining seconds
-        const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+        const seconds = this.onPad(Math.floor((((ms % day) % hour) % minute) / second));
 
         return { days, hours, minutes, seconds };
     }
@@ -87,6 +98,5 @@ class CountdownTimer{
 }
 
 const timer = new CountdownTimer({
-    selector: '.timer',
-    targetDate: new Date("Jul 30, 2021 21:56:25").getTime()
+    selector: '.timer'
 });
