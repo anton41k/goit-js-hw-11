@@ -1,3 +1,4 @@
+import '../css/common.css';
 // ES6 Modules or TypeScript
 import Swal from 'sweetalert2';
 
@@ -15,11 +16,11 @@ class CountdownTimer{
             startBtn:document.querySelector('button[data-start]')
         };
         this.targetDate = null;
+        this.ref.startBtn.disabled = 1;
         this.onEvent();
     }
 
-    onEvent(ev) {
-        this.ref.startBtn.disabled = 1;
+    onEvent() {
         this.ref.input.addEventListener('input', this.onDataEntryProcessing.bind(this));
         this.ref.startBtn.addEventListener('click', this.start.bind(this))
     }
@@ -27,8 +28,8 @@ class CountdownTimer{
     onDataEntryProcessing(ev) {
         this.stop();
         const dateNow = this.onDateNow();
-        const inputValue = ev.currentTarget;
-        this.targetDate = inputValue.valueAsNumber;console.log(this.targetDate - dateNow)
+        const inputEl = ev.currentTarget;
+        this.targetDate = inputEl.valueAsNumber;
         if (this.targetDate - dateNow < 0) {
             Swal.fire({
                 icon: 'error',
@@ -62,6 +63,11 @@ class CountdownTimer{
         this.onSetTimer(0);
     }
 
+    onSetTimer(deltaTimer) {
+        const timer = this.onGetTimeComponents(deltaTimer);
+        this.onUpdateTimerValue(timer);
+    }
+
     onUpdateTimerValue({ days, hours, minutes, seconds }) {
         this.ref.dayValue.textContent = days;
         this.ref.hoursValue.textContent = hours;
@@ -89,11 +95,6 @@ class CountdownTimer{
         const seconds = this.onPad(Math.floor((((ms % day) % hour) % minute) / second));
 
         return { days, hours, minutes, seconds };
-    }
-
-    onSetTimer(deltaTimer) {
-        const timer = this.onGetTimeComponents(deltaTimer);
-        this.onUpdateTimerValue(timer);
     }
 }
 
