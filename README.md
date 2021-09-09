@@ -1,49 +1,185 @@
-# parcel-project-template
+Задание 1
 
-## Зависимости
+Переключатель цветов
+Есть массив цветов в hex-формате и кнопки Start и Stop.
 
-На компьютере должена быть установлена LTS-версия [Node.js](https://nodejs.org/en/).
+<button type="button" data-action="start">Start</button>
+<button type="button" data-action="stop">Stop</button>
+const colors = [
+  '#FFFFFF',
+  '#2196F3',
+  '#4CAF50',
+  '#FF9800',
+  '#009688',
+  '#795548',
+];
+Напиши скрипт, который после нажатия кнопки Start, раз в секунду меняет цвет фона body на случайное значение из массива используя инлайн-стиль. При нажатии на кнопку Stop, изменение цвета фона должно останавливаться.
 
-## Перед началом работы
+⚠️ Учти, на кнопку Start можно нажать бесконечное количество раз. Сделай так, чтобы пока изменение темы запушено, кнопка Start была не активна.
 
-Один раз на проект установить все зависимости.
+Для генерации случайного числа (индекс элемента массива цветов), используй функцию randomIntegerFromInterval.
 
-```shell
-npm ci
-```
+const randomIntegerFromInterval = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
-### Разработка
+Задание 2
+Напиши функцию delay(ms), которая возвращает промис, переходящий в состояние "resolved" через ms миллисекунд. Значением исполнившегося промиса должно быть то кол-во миллисекунд которое передали во время вызова функции delay.
 
-Запустить режим разработки.
+const delay = ms => {
+  // Твой код
+};
 
-```shell
-npm run dev
-```
+const logger = time => console.log(`Resolved after ${time}ms`);
 
-Во вкладке браузера перейти по адресу [http://localhost:1234](http://localhost:1234).
+// Вызовы функции для проверки
+delay(2000).then(logger); // Resolved after 2000ms
+delay(1000).then(logger); // Resolved after 1000ms
+delay(1500).then(logger); // Resolved after 1500ms
+Задание 2
+Перепиши функцию toggleUserState() так, чтобы она не использовала callback-функцию callback, а принимала всего два параметра allUsers и userName и возвращала промис.
 
-### Деплой
+const users = [
+  { name: 'Mango', active: true },
+  { name: 'Poly', active: false },
+  { name: 'Ajax', active: true },
+  { name: 'Lux', active: false },
+];
 
-Сборка будет автоматически собирать и деплоить продакшен версию проекта на GitHub Pages, в ветку
-`gh-pages`, каждый раз когда обновляется ветка `main`. Например, после прямого пуша или принятого
-пул-реквеста. Для этого необходимо в файле `package.json` отредактировать поле `homepage` и скрипт
-`build`, заменив `имя_пользователя` и `имя_репозитория` на свои.
+const toggleUserState = (allUsers, userName, callback) => {
+  const updatedUsers = allUsers.map(user =>
+    user.name === userName ? { ...user, active: !user.active } : user,
+  );
 
-```json
-"homepage": "https://имя_пользователя.github.io/имя_репозитория",
-"scripts": {
-  "build": "parcel build src/*.html --public-url /имя_репозитория/"
-},
-```
+  callback(updatedUsers);
+};
 
-Через какое-то время живую страницу можно будет посмотреть по адресу указанному в отредактированном
-свойстве `homepage`, например
-[https://goitacademy.github.io/parcel-project-template](https://goitacademy.github.io/parcel-project-template).
+const logger = updatedUsers => console.table(updatedUsers);
 
-## Файлы и папки
+/*
+ * Сейчас работает так
+ */
+toggleUserState(users, 'Mango', logger);
+toggleUserState(users, 'Lux', logger);
 
-- Все паршалы файлов стилей должны лежать в папке `src/sass` и импортироваться в
-  `src/sass/main.scss`
-- Изображения добавляйте в папку `src/images`, заранее оптимизировав их. Сборщик просто копирует
-  используемые изображения чтобы не нагружать систему оптимизацией картинок, так как на слабых
-  компьютерах это может занять прилично времени.
+/*
+ * Должно работать так
+ */
+toggleUserState(users, 'Mango').then(logger);
+toggleUserState(users, 'Lux').then(logger);
+Задание 3
+Перепиши функцию makeTransaction() так, чтобы она не использовала callback-функции onSuccess и onError, а принимала всего один параметр transaction и возвращала промис.
+
+const randomIntegerFromInterval = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+const makeTransaction = (transaction, onSuccess, onError) => {
+  const delay = randomIntegerFromInterval(200, 500);
+
+  setTimeout(() => {
+    const canProcess = Math.random() > 0.3;
+
+    if (canProcess) {
+      onSuccess(transaction.id, delay);
+    } else {
+      onError(transaction.id);
+    }
+  }, delay);
+};
+
+const logSuccess = (id, time) => {
+  console.log(`Transaction ${id} processed in ${time}ms`);
+};
+
+const logError = id => {
+  console.warn(`Error processing transaction ${id}. Please try again later.`);
+};
+
+/*
+ * Работает так
+ */
+makeTransaction({ id: 70, amount: 150 }, logSuccess, logError);
+makeTransaction({ id: 71, amount: 230 }, logSuccess, logError);
+makeTransaction({ id: 72, amount: 75 }, logSuccess, logError);
+makeTransaction({ id: 73, amount: 100 }, logSuccess, logError);
+/*
+ * Должно работать так
+ */
+makeTransaction({ id: 70, amount: 150 })
+  .then(logSuccess)
+  .catch(logError);
+
+makeTransaction({ id: 71, amount: 230 })
+  .then(logSuccess)
+  .catch(logError);
+
+makeTransaction({ id: 72, amount: 75 })
+  .then(logSuccess)
+  .catch(logError);
+
+makeTransaction({ id: 73, amount: 100 })
+  .then(logSuccess)
+  .catch(logError);
+  
+  Задание 3
+  Таймер обратного отсчета
+Создай плагин настраиваемого таймера, который ведет обратный отсчет до предварительно определенной даты. Такой плагин может использоваться в блогах и интернет-магазинах, страницах регистрации событий, во время технического обслуживания и т. д.
+
+preview
+
+Плагин ожидает следующую HTML-разметку и показывает четыре цифры: дни, часы, минуты и секунды в формате XX:XX:XX:XX. Количество дней может состоять из более чем двух цифр.
+
+<div class="timer" id="timer-1">
+  <div class="field">
+    <span class="value" data-value="days">11</span>
+    <span class="label">Days</span>
+  </div>
+
+  <div class="field">
+    <span class="value" data-value="hours">11</span>
+    <span class="label">Hours</span>
+  </div>
+
+  <div class="field">
+    <span class="value" data-value="mins">11</span>
+    <span class="label">Minutes</span>
+  </div>
+
+  <div class="field">
+    <span class="value" data-value="secs">11</span>
+    <span class="label">Seconds</span>
+  </div>
+</div>
+Плагин это класс CountdownTimer, экземпляр которого создает новый таймер с настройками.
+
+new CountdownTimer({
+  selector: '#timer-1',
+  targetDate: new Date('Jul 17, 2019'),
+});
+Для подсчета значений используй следующие готовые формулы, где time - разница между targetDate и текущей датой.
+
+/*
+ * Оставшиеся дни: делим значение UTC на 1000 * 60 * 60 * 24, количество
+ * миллисекунд в одном дне (миллисекунды * секунды * минуты * часы)
+ */
+const days = Math.floor(time / (1000 * 60 * 60 * 24));
+
+/*
+ * Оставшиеся часы: получаем остаток от предыдущего расчета с помощью оператора
+ * остатка % и делим его на количество миллисекунд в одном часе
+ * (1000 * 60 * 60 = миллисекунды * минуты * секунды)
+ */
+const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+/*
+ * Оставшиеся минуты: получаем оставшиеся минуты и делим их на количество
+ * миллисекунд в одной минуте (1000 * 60 = миллисекунды * секунды)
+ */
+const mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+
+/*
+ * Оставшиеся секунды: получаем оставшиеся секунды и делим их на количество
+ * миллисекунд в одной секунде (1000)
+ */
+const secs = Math.floor((time % (1000 * 60)) / 1000);
